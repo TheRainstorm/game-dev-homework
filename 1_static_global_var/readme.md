@@ -1,7 +1,7 @@
 ## 编译
 
 ```sh
-g++ -o test ConsoleApplication1.cpp another_file.cpp
+g++ -I./include -o test ConsoleApplication1.cpp another_file.cpp ClassA.cpp
 ./test
 ```
 

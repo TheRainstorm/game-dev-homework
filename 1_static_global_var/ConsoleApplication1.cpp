@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include "ClassA.h"
 using namespace std;
 
 extern int global_outer_num;
@@ -16,7 +17,7 @@ void print_num(int cnt) {
 	int auto_num = 2;
 	static int static_auto_num = 3;
 
-	cout << "In print_num, cnt: " << cnt << endl;
+	cout << "IN FUNC: print_num, cnt: " << cnt << endl;
 	cout << "auto_num: " << auto_num << endl;
 	cout << "static_auto_num: " << static_auto_num << endl;
 
@@ -35,26 +36,33 @@ int main()
 		int block_auto_num = 10;
 	}
 	/*
-	The difference in ×÷ÓÃÓò
+	The difference in ä½œç”¨åŸŸ
 	*/
-	//È«¾Ö±äÁ¿¿ÉÒÔÔÚÈÎºÎµØ·½(Í¬Ò»ÎÄ¼þ)ÒýÓÃ£¬¾Ö²¿±äÁ¿Ö»ÄÜÔÚ¶¨ÒåµÄº¯ÊýÄÚ(»ò¿éÄÚ)ÒýÓÃ
+	//å…¨å±€å˜é‡å¯ä»¥åœ¨ä»»ä½•åœ°æ–¹(åŒä¸€æ–‡ä»¶)å¼•ç”¨ï¼Œå±€éƒ¨å˜é‡åªèƒ½åœ¨å®šä¹‰çš„å‡½æ•°å†…(æˆ–å—å†…)å¼•ç”¨
 	cout << "global_num: " << global_num << endl;
 	cout << "static_global_num: " << static_global_num << endl;
 	// cout <<"auto_num"<<auto_num<<endl; //error
 	// cout <<"static_auto_num"<<static_auto_num<<endl; //error
 	// cout <<"block_auto_num"<< block_auto_num <<endl; //error
 
-	//·Ç¾²Ì¬µÄÈ«¾Ö±äÁ¿»¹¿ÉÒÔÍ¨¹ýextern¿çÎÄ¼þÒýÓÃ£¬¶ø¾²Ì¬µÄ²»ÄÜ
+	//éžé™æ€çš„å…¨å±€å˜é‡è¿˜å¯ä»¥é€šè¿‡externè·¨æ–‡ä»¶å¼•ç”¨ï¼Œè€Œé™æ€çš„ä¸èƒ½
 	cout << "global_outer_num: " << global_outer_num << endl;
 	// cout <<"static_outer_global_num: "<<static_outer_global_num<<endl; //error
-	//·Ç¾²Ì¬µÄÈ«¾Ö±äÁ¿Í¨¹ý¸ÃÎÄ¼þËùÔÚµÄº¯ÊýÊÇ¿ÉÒÔÒýÓÃµÄ
+	//éžé™æ€çš„å…¨å±€å˜é‡é€šè¿‡è¯¥æ–‡ä»¶æ‰€åœ¨çš„å‡½æ•°æ˜¯å¯ä»¥å¼•ç”¨çš„
 	print_num_in_other();
 
+	//é™æ€æˆå‘˜å˜é‡å¯ä»¥é€šè¿‡å¯¹è±¡å’Œç±»åæ¥è®¿é—®ã€‚
+	ClassA obj1 = ClassA();
+	cout<<obj1.static_public_num<<endl;
+	cout<<ClassA::static_public_num<<endl;
+	// cout<<ClassA::static_protected_num<<endl; //error
+	//åœ¨ç±»çš„å‡½æ•°å†…å¯ä»¥é€šè¿‡ç±»åè®¿é—®protected, privateé™åˆ¶çš„staticå˜é‡ã€‚
+	ClassA::print_num();
 	/*
-	The difference in ÉúÃüÖÜÆÚ
+	The difference in ç”Ÿå‘½å‘¨æœŸ
 	*/
-	//·Ç¾²Ì¬¾Ö²¿±äÁ¿ÔÚÃ¿´Îµ÷ÓÃº¯ÊýÊ±£¬¶¼»áÔÚÕ»ÖÐÖØÐÂ·ÖÅä£¬º¯Êýµ÷ÓÃ½áÊøÊ±Ïú»Ù¡£
-	//¾²Ì¬¾Ö²¿±äÁ¿ÔÚµÚÒ»´Î¶¨ÒåÊ±±»´æ´¢ÔÚ¶ÑÖÐ£¬º¯Êýµ÷ÓÃ½áÊøÊ±²»»áÏú»Ù£¬Òò´Ë¿ÉÒÔ±£ÁôÖµ¡£
+	//éžé™æ€å±€éƒ¨å˜é‡åœ¨æ¯æ¬¡è°ƒç”¨å‡½æ•°æ—¶ï¼Œéƒ½ä¼šåœ¨æ ˆä¸­é‡æ–°åˆ†é…ï¼Œå‡½æ•°è°ƒç”¨ç»“æŸæ—¶é”€æ¯ã€‚
+	//é™æ€å±€éƒ¨å˜é‡åœ¨ç¬¬ä¸€æ¬¡å®šä¹‰æ—¶è¢«å­˜å‚¨åœ¨å †ä¸­ï¼Œå‡½æ•°è°ƒç”¨ç»“æŸæ—¶ä¸ä¼šé”€æ¯ï¼Œå› æ­¤å¯ä»¥ä¿ç•™å€¼ã€‚
 	print_num(0);
 	print_num(1);
 
