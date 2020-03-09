@@ -1,12 +1,15 @@
 #include <iostream>
 #include <string>
-#include <windows.h>
 #include "Tetris.h"
+#include "pthread.h"
 using namespace std;
+
+extern pthread_mutex_t g_game_state_mutex, g_draw_mutex, g_level_mutex;
 
 Tetris::Tetris(){
 	m_score = 0;
 	m_level = 1;
+	m_game_state = START;
 }
 
 void Tetris::init_map(){
@@ -14,7 +17,7 @@ void Tetris::init_map(){
 	(HEIGHT+2) * (WIDTH+2) map
 	leave one line on the top not use(to keep the graph touch the top when born)
 	*/
-	for(int i=0;i<HEIGHT+2;i++){ //fill all with 0
+	for (int i = 0; i < HEIGHT + 2; i++) { //fill all with 0
 		for(int j=0;j<WIDTH+2;j++){
 			m_map[i][j] = 0;
 			m_map[i][j] = CLEAR;
@@ -38,7 +41,7 @@ void Tetris::init_map(){
 }
 
 void Tetris::draw_map(){
-	for(int i=1;i<HEIGHT+2;i++){
+	for (int i = 1; i < HEIGHT + 2; i++) {
 		m_cursor->move_to(0, i);
 		for (int j = 0; j < WIDTH + 2; j++) {
 			m_cursor->draw_block(m_color_map[i][j]);
@@ -48,7 +51,8 @@ void Tetris::draw_map(){
 }
 
 void Tetris::erase_prev_graph(Shape &graph){
-	int (*points)[4][4] = graph.m_points;
+	pthread_mutex_lock(&g_draw_mutex);
+	int(*points)[4][4] = graph.m_points;
 	int status = graph.m_prev_status;
 	for(int i=0;i<4;i++){
 		for(int j=0;j<4;j++){
@@ -59,9 +63,11 @@ void Tetris::erase_prev_graph(Shape &graph){
 			}
 		}
 	}
+	pthread_mutex_unlock(&g_draw_mutex);
 }
 
 void Tetris::draw_cur_graph(Shape &graph){
+	pthread_mutex_lock(&g_draw_mutex);
 	int (*points)[4][4] = graph.m_points;
 	int status = graph.m_graph_status;
 	for(int i=0;i<4;i++){
@@ -73,6 +79,7 @@ void Tetris::draw_cur_graph(Shape &graph){
 			}
 		}
 	}
+	pthread_mutex_unlock(&g_draw_mutex);
 }
 
 bool Tetris::collision(Shape &graph){
@@ -88,7 +95,7 @@ bool Tetris::collision(Shape &graph){
 }
 
 void Tetris::modify_map(Shape &graph){
-	int (*points)[4][4] = graph.m_points;
+	int(*points)[4][4] = graph.m_points;
 	for(int i=0;i<4;i++){
 		for(int j=0;j<4;j++){
 			if(points[i][graph.m_graph_status][j]==1){
@@ -120,7 +127,9 @@ void Tetris::eliminate(){
 					m_color_map[m][n] = m_color_map[m - 1][n];
 				}
 			}
-			Sleep(1200-200*m_level);
+			pthread_mutex_lock(&g_level_mutex);
+			mySleep(1200 - 200 * m_level);
+			pthread_mutex_unlock(&g_level_mutex);
 			draw_map();
 		}else{
 			i--;
@@ -150,11 +159,22 @@ void Tetris::draw_help() {
 }
 
 void Tetris::draw_score() {
-	m_cursor->move_to(WIDTH+4, HEIGHT/2);
+	m_cursor->move_to(WIDTH + 4, HEIGHT - 2);
 	cout << "Level: " << m_level;
 	m_cursor->resume();
-	m_cursor->move_to(WIDTH + 4, HEIGHT / 2 + 1);
+	m_cursor->move_to(WIDTH + 4, HEIGHT - 1);
 	cout << "Score: " << m_score;
+	m_cursor->resume();
+}
+
+void Tetris::draw_game_over() {
+	m_cursor->move_to(0, HEIGHT / 2);
+	cout<<\
+	"    //   ) )                                //   ) )                      \n"\
+	"   //         ___      _   __      ___     //   / /        ___      __    \n"\
+	"  //  ____  //   ) ) // ) )  ) ) //___) ) //   / /|  / / //___) ) //  ) ) \n"\
+	" //    / / //   / / // / /  / / //       //   / /|| / / //       //       \n"\
+	" ((____/ / ((___(( // / /  / / ((____   ((___/ / ||/ / ((____   //        \n";
 	m_cursor->resume();
 }
 
@@ -163,9 +183,10 @@ void Tetris::play(){
 	m_cursor->save();
 
 	init_map();
-	m_level = 1;
 	draw_map();
 	draw_help();
+	m_score = 0;
+	m_level = 1;
 	draw_score();
 
 	m_game_state = START;
@@ -177,12 +198,18 @@ void Tetris::play(){
 			m_game_state = END;
 			break;
 		}
-
 		while (!graph.m_graph_dead) {
-			while (m_game_state == PAUSE) { //bug: don't recover 
-				;
+			while (true){
+				pthread_mutex_lock(&g_game_state_mutex);
+				if (m_game_state != PAUSE) {
+					pthread_mutex_unlock(&g_game_state_mutex);
+					break;
+				}
+				pthread_mutex_unlock(&g_game_state_mutex);
 			}
-			Sleep(1200-200*m_level);
+			pthread_mutex_lock(&g_level_mutex);
+			mySleep(1200 - 200 * m_level);
+			pthread_mutex_unlock(&g_level_mutex);
 
 			graph.save_status();
 			graph.down();
@@ -199,4 +226,5 @@ void Tetris::play(){
 		eliminate();
 		draw_score();
 	}
+	draw_game_over();
 }
