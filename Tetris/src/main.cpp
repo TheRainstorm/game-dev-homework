@@ -1,42 +1,57 @@
-#include <pthread.h>
+#include <iostream>
 #include <conio.h>
 #include <windows.h>
 #include "Tetris.h"
+#include "Shape.h"
 #include "defines.h"
+#include "pthread.h"
 
-void *listen_key(void *ptr){
-	Tetris *game = (Tetris *)ptr;
+using namespace std;
+
+void* listen_key(void* ptr) {
+	Tetris* game = (Tetris*)ptr;
+	Shape* graph;
 	char key;
-	while(1){
-		key = getch();
-		game->m_p_cur_graph->save_prev();
-		switch(key){
-			case 'a':
-				game->m_p_cur_graph->move(Left);break;
-			case 'd':
-				game->m_p_cur_graph->move(Right);break;
-			case 'w':
-				game->m_p_cur_graph->rotate(Clockwise);break;
-			case 's':
-				game->m_p_cur_graph->down(2);break;
-			default: break;
+	while (1) {
+		key = _getch();
+		graph = game->m_cur_graph;
+
+		if (key == 'p') {
+			game->m_game_state = (game->m_game_state != PAUSE) ? PAUSE : START;
 		}
-		if(game->collision(*(game->m_p_cur_graph))){
-			game->m_p_cur_graph->recover_prev();
-		}else{
-			game->erase_prev_graph(*(game->m_p_cur_graph));
-			game->draw_cur_graph(*(game->m_p_cur_graph));
-			game->render();
+		if (graph->m_graph_dead || game->m_game_state == PAUSE) {
+			continue;
 		}
+		graph->save_status();
+		switch (key) {
+		case 'a':
+			graph->move(Left); break;
+		case 'd':
+			graph->move(Right); break;
+		case 'w':
+			graph->rotate(Clockwise); break;
+		case 's':
+			graph->down(2); break;
+		default: break;
+		}
+		if (game->collision(*graph)) {
+			graph->recover_status();
+		}
+		else {
+			game->erase_prev_graph(*graph);
+			game->draw_cur_graph(*graph);
+		}
+		Sleep(100);
 	}
 }
 
 void *add_level(void *ptr){
 	Tetris *game = (Tetris *)ptr;
-	while(game->m_level<=4){
-		Sleep(30*1000);
+	game->m_level = 1;
+	do{
+		Sleep(30 * 1000);
 		game->m_level++;
-	}
+	} while (game->m_level <= 4);
 	return 0;
 }
 

@@ -48,9 +48,9 @@ int Shape::all_graph_points[7][4][4][4] ={ //[graph][i][status][j]
 
 Shape::Shape(){
 	m_graph = enum_graph(rand()%GRAPH_NUM);
-	m_color = enum_color(rand()%COLOR_NUM);
+	m_color = enum_color(2+rand()%COLOR_NUM);
 	m_points = Shape::all_graph_points[m_graph];
-	m_cur_status = 0;
+	m_graph_status = 0;
 	m_x = WIDTH/2-2; //horizon center
 	m_y = 0;
 	m_graph_dead = false;
@@ -60,7 +60,7 @@ Shape::Shape(enum_graph graph, enum_color color){
 	m_graph = graph;
 	m_color = color;
 	m_points = Shape::all_graph_points[m_graph];
-	m_cur_status = 0;
+	m_graph_status = 0;
 	m_x = WIDTH/2-2; //horizon center
 	m_y = 0;
 	m_graph_dead = false;
@@ -71,7 +71,7 @@ Shape::~Shape(){
 }
 
 void Shape::rotate(enum_rotate rotate){
-	m_cur_status = (m_cur_status + rotate)%4;
+	m_graph_status = (m_graph_status + rotate)%4;
 }
 
 void Shape::move(enum_move move){
@@ -82,14 +82,14 @@ void Shape::down(int distance){
 	m_y += distance;
 }
 
-void Shape::save_prev(){
+void Shape::save_status(){
 	m_prev_x = m_x;
 	m_prev_y = m_y;
-	m_prev_status = m_cur_status;
+	m_prev_status = m_graph_status;
 }
 
-void Shape::recover_prev(){
+void Shape::recover_status(){
 	m_x = m_prev_x;
 	m_y = m_prev_y;
-	m_cur_status = m_prev_status;
+	m_graph_status = m_prev_status;
 }
