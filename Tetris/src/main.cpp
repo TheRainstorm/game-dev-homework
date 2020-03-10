@@ -1,10 +1,10 @@
 #include <iostream>
-#include <conio.h>
 #include "Tetris.h"
 #include "Shape.h"
 #include "defines.h"
-#include "OS.h"
+
 #include "pthread.h"
+#include "OS.h"
 
 using namespace std;
 

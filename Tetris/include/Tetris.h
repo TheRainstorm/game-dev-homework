@@ -2,7 +2,6 @@
 #define TETRIS_H
 #include "Shape.h"
 #include "defines.h"
-#include "cursor.h"
 
 class Tetris{
 public:
@@ -10,7 +9,6 @@ public:
 	enum_color m_color_map[HEIGHT+1][WIDTH+2];
 
 	Shape *m_cur_graph;		//the current graph (don't dead)
-	Cursor *m_cursor;		//the cursor to draw(as a tool)
 	int m_score;
 
 	enum_game_state m_game_state;
