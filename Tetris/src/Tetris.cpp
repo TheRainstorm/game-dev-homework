@@ -2,6 +2,7 @@
 #include <string>
 #include "Tetris.h"
 #include "pthread.h"
+#include "OS.h"
 using namespace std;
 
 extern pthread_mutex_t g_game_state_mutex, g_draw_mutex, g_level_mutex;
@@ -179,7 +180,7 @@ void Tetris::draw_game_over() {
 }
 
 void Tetris::play(){
-	system("cls");
+	clearScreen();
 	m_cursor->save();
 
 	init_map();

@@ -12,6 +12,4 @@ public:
     void draw_block(enum_color); //draw a block with color in current place
 };
 
-void mySleep(int time); //millisecond
-
 #endif

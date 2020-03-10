@@ -1,28 +1,7 @@
 #include "cursor.h"
 #include <iostream>
 
-/*
-GUN/GCC: linux
-MinGW: _WIN32
-MSVC: _WIN32 _WINDOWS_
-*/
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-#ifdef linux
-#include <unistd.h>
-#endif
-
 using namespace std;
-
-void mySleep(int time){
-#ifdef _WIN32
-	Sleep(time);
-#endif
-#ifdef linux
-	sleep(time/1000);
-#endif
-}
 
 /*
 \033[nA 光标上移n行

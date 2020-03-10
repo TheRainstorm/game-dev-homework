@@ -3,6 +3,7 @@
 #include "Tetris.h"
 #include "Shape.h"
 #include "defines.h"
+#include "OS.h"
 #include "pthread.h"
 
 using namespace std;
@@ -14,7 +15,7 @@ void* listen_key(void* ptr) {
 	Shape* graph;
 	char key;
 	while (1) {
-		key = _getch();
+		key = myGetch();
 		graph = game->m_cur_graph;
 
 		pthread_mutex_lock(&g_game_state_mutex);
@@ -38,7 +39,7 @@ void* listen_key(void* ptr) {
 		case 'w':
 			graph->rotate(Clockwise); break;
 		case 's':
-			graph->down(2); break;
+			graph->down(1); break;
 		default: break;
 		}
 		if (game->collision(*graph)) {
