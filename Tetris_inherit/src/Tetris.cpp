@@ -3,10 +3,10 @@
 #include "graph.h"
 #include "defines.h"
 
-#include <Windows.h>
 #include <stdio.h>
 #include "pthread.h"
 
+void my_sleep(int millisecond);
 Graph *graph_factory();
 
 Color Tetris::ink = WHITE;
@@ -49,18 +49,19 @@ void Tetris::draw_map() {
 			draw_block(m_color_map[i][j]);
 		}
 	}
+	fflush(stdout);
 }
 
 void Tetris::draw_next_graph() {
 	int row, col;
-	row = 2, col = WIDTH + 4;
+	row = 2, col = WIDTH + 2;
 
 	m_next_graph->save();
 	m_next_graph->set_position(row, col);
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			move_to(row + i, col + j);
-			draw_block(Tetris::paper);
+			draw_block(WHITE);
 		}
 	}
 
@@ -70,7 +71,7 @@ void Tetris::draw_next_graph() {
 
 void Tetris::draw_score() {
 	int row, col;
-	row = HEIGHT - 2, col = WIDTH + 4;
+	row = HEIGHT - 4, col = WIDTH + 2;
 
 	move_to(row, col);
 	printf("Score: %d", m_score);
@@ -79,9 +80,8 @@ void Tetris::draw_score() {
 }
 
 void Tetris::draw_help_info() {
-	move_to(HEIGHT / 2 - 3, WIDTH + 4);
 	for (int i = 0; i < 5; i++) {
-		move_to(HEIGHT / 2 -2 + i, WIDTH + 4);
+		move_to(HEIGHT / 2 -2 + i, WIDTH + 2);
 		switch (i) {
 		case 0:
 			printf("a: move left"); break;
@@ -170,9 +170,9 @@ void Tetris::eliminate_line() {
 					m_color_map[i][j] = m_color_map[i - 1][j];
 				}
 			}
-			Sleep(500);
+			my_sleep(500);
 			draw_map();
-			Sleep(500);
+			my_sleep(500);
 		}
 		else {
 			row--;
@@ -205,7 +205,8 @@ void Tetris::play(){
 		m_level = (cnt / COUNTER < 5) ? cnt / COUNTER : 4;
 
 		while(!(m_graph->m_dead)){ //Loop: down until graph dead
-			Sleep(1000 - m_level*200);
+			fflush(stdout);
+			my_sleep(1000 - m_level*200);
 			if (m_game_state == PAUSE) continue;
 			pthread_mutex_lock(&g_graph_mutex);
 			m_graph->save();

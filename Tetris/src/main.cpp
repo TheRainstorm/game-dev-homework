@@ -49,6 +49,7 @@ void* listen_key(void* ptr) {
 			game->erase_prev_graph(*graph);
 			game->draw_cur_graph(*graph);
 		}
+		fflush(stdout);
 		mySleep(100);
 	}
 	pthread_exit(NULL);
@@ -70,6 +71,9 @@ void *add_level(void *ptr){
 }
 
 int main(){
+	#ifdef _WIN32
+	system("cls");
+	#endif
 	pthread_mutex_init(&g_game_state_mutex, NULL);
 	pthread_mutex_init(&g_draw_mutex, NULL);
 	pthread_mutex_init(&g_level_mutex, NULL);

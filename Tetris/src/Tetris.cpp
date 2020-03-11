@@ -203,6 +203,7 @@ void Tetris::play() {
 				pthread_mutex_unlock(&g_game_state_mutex);
 			}
 			pthread_mutex_lock(&g_level_mutex);
+			fflush(stdout);
 			mySleep(1200 - 200 * m_level);
 			pthread_mutex_unlock(&g_level_mutex);
 
