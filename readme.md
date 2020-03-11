@@ -18,7 +18,7 @@
 
 ## 3. Tetris截图
 
-![image-20200312022630834](https://gitee.com/yuanfuyan/pyNet/raw/master/img/image-20200312022630834.png)
+![image-20200312022630834](https://gitee.com/yuanfuyan/game-dev-homework/raw/master/img/image-20200312022630834.png)
 
-![image-20200312022743583](https://gitee.com/yuanfuyan/pyNet/raw/master/img/image-20200312022743583.png)
+![image-20200312022743583](https://gitee.com/yuanfuyan/game-dev-homework/raw/master/img/image-20200312022743583.png)
 
