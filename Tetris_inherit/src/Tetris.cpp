@@ -5,6 +5,7 @@
 
 #include <Windows.h>
 #include <stdio.h>
+#include "pthread.h"
 
 Graph *graph_factory();
 
@@ -74,7 +75,7 @@ void Tetris::draw_score() {
 	move_to(row, col);
 	printf("Score: %d", m_score);
 	move_to(row+1, col);
-	printf("Level: %d", m_level);
+	printf("Level: %d (speed: %4dms/grid)", m_level, 1000-200*m_level);
 }
 
 void Tetris::draw_help_info() {
@@ -91,9 +92,19 @@ void Tetris::draw_help_info() {
 		case 3:
 			printf("s: move down quick"); break;
 		case 4:
-			printf("p: pause"); break;
+			printf("p: pause/resume"); break;
 		default:break;
 		}
+	}
+}
+
+void Tetris::draw_pause(bool clear) {
+	move_to(HEIGHT / 2 - 1, WIDTH / 2 - 1);
+	if (!clear) {
+		printf("PAUSE");
+	}
+	else {
+		printf("     ");
 	}
 }
 
@@ -159,8 +170,9 @@ void Tetris::eliminate_line() {
 					m_color_map[i][j] = m_color_map[i - 1][j];
 				}
 			}
-			Sleep(200);
+			Sleep(500);
 			draw_map();
+			Sleep(500);
 		}
 		else {
 			row--;
@@ -168,23 +180,34 @@ void Tetris::eliminate_line() {
 	}
 }
 
+extern pthread_mutex_t g_graph_mutex;
 void Tetris::play(){
 	cursor_show(false);
 	clear_screen();
 
+	//init screen
 	init_map();
 	draw_map();
 	draw_score();
 	draw_help_info();
+	m_game_state = RUNNING;
+
+	int cnt = 0; //total graph number
 	m_graph = graph_factory();
-	m_graph->move_left();
-	m_graph->move_left();
-	while(m_game_state!=END){
+	while (m_game_state != END) {
 		m_next_graph = graph_factory();
 		draw_next_graph();
+		//draw a graph
 		m_graph -> draw();
-		while(!(m_graph->m_dead)){
-			Sleep(100);
+
+		//increase game level
+		cnt++;
+		m_level = (cnt / COUNTER < 5) ? cnt / COUNTER : 4;
+
+		while(!(m_graph->m_dead)){ //Loop: down until graph dead
+			Sleep(1000 - m_level*200);
+			if (m_game_state == PAUSE) continue;
+			pthread_mutex_lock(&g_graph_mutex);
 			m_graph->save();
 			m_graph->down();
 			if(detect_collision()){
@@ -194,20 +217,24 @@ void Tetris::play(){
 				m_graph->erase();
 				m_graph->draw();
 			}
+        	pthread_mutex_unlock(&g_graph_mutex);
 		}
+		//write dead graph to map
 		modify_map();
-		draw_map();
+		draw_map(); //test wheather the map have been modified
+		//if the last graph touch the DEAD LINE, game over
 		if(m_graph->m_row<=DEAD_LINE){
 			m_game_state = END;
-			delete m_graph;
-			delete m_next_graph;
 			break;
 		}
+		//try eliminate lines
 		eliminate_line();
 
 		delete m_graph;
 		m_graph = m_next_graph;
 	}
+	delete m_graph;
+	delete m_next_graph;
 
 	draw_game_over();
 	cursor_show(true);
