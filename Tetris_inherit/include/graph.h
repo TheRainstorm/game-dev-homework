@@ -1,9 +1,7 @@
 #ifndef GRAPH_H
 #define GRAPH_H
-#define HEIGHT 19   //17 + 2
-#define WIDTH 12    //10 + 2
 
-enum Color { BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CRAY, WHITE, COLOR_NUM };
+#include "defines.h"
 
 class Graph {
 public:
