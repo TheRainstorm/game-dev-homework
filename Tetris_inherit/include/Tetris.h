@@ -15,19 +15,21 @@ private:
     int m_map[HEIGHT][WIDTH];
     Color m_color_map[HEIGHT][WIDTH];
 
-    Graph *m_current_graph, *m_next_graph;
+    Graph * m_graph, *m_next_graph;
 
     int m_score, m_level;
+    GameState m_game_state;
 private:
     void init_map();
     void draw_map();
-	/*void draw_next_graph();
+	void draw_next_graph();
 	void draw_score();
 	void draw_help_info();
 	void draw_game_over();
 
-	void detect_collision();
-	void eliminate_line();*/
+	bool detect_collision();
+    void modify_map();
+	void eliminate_line();
 };
 
 #endif

@@ -2,6 +2,10 @@
 #include "draw.h"
 #include "Tetris.h"
 
+Graph::Graph() {
+	m_dead = false;
+}
+
 void Graph::move_left() {
 	m_column--;
 }
@@ -20,6 +24,11 @@ void Graph::resume() {
 	m_column = m_prev_column;
 	m_row = m_prev_row;
 	m_points = m_prev_points;
+}
+
+void Graph::set_position(int row, int col) {
+	m_row = row;
+	m_column = col;
 }
 //
 void Graph::draw() {

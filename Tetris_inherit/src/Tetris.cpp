@@ -4,7 +4,9 @@
 #include "defines.h"
 
 #include <Windows.h>
-#include <stdlib.h>
+#include <stdio.h>
+
+Graph *graph_factory();
 
 Color Tetris::ink = WHITE;
 Color Tetris::paper = BLACK;
@@ -12,6 +14,7 @@ Color Tetris::paper = BLACK;
 Tetris::Tetris(){
     m_score = 0;
 	m_level = 0;
+	m_game_state = START;
 }
 
 void Tetris::init_map(){
@@ -47,36 +50,165 @@ void Tetris::draw_map() {
 	}
 }
 
+void Tetris::draw_next_graph() {
+	int row, col;
+	row = 2, col = WIDTH + 4;
+
+	m_next_graph->save();
+	m_next_graph->set_position(row, col);
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			move_to(row + i, col + j);
+			draw_block(Tetris::paper);
+		}
+	}
+
+	m_next_graph->draw();
+	m_next_graph->resume();
+}
+
+void Tetris::draw_score() {
+	int row, col;
+	row = HEIGHT - 2, col = WIDTH + 4;
+
+	move_to(row, col);
+	printf("Score: %d", m_score);
+	move_to(row+1, col);
+	printf("Level: %d", m_level);
+}
+
+void Tetris::draw_help_info() {
+	move_to(HEIGHT / 2 - 3, WIDTH + 4);
+	for (int i = 0; i < 5; i++) {
+		move_to(HEIGHT / 2 -2 + i, WIDTH + 4);
+		switch (i) {
+		case 0:
+			printf("a: move left"); break;
+		case 1:
+			printf("d: move right"); break;
+		case 2:
+			printf("w: rotate clockwise"); break;
+		case 3:
+			printf("s: move down quick"); break;
+		case 4:
+			printf("p: pause"); break;
+		default:break;
+		}
+	}
+}
+
+void Tetris::draw_game_over() {
+	move_to(HEIGHT / 2 - 3, 0);
+	printf(\
+		"      ____                                    ___                         \n"\
+		"    //   ) )                                //   ) )                      \n"\
+		"   //         ___      _   __      ___     //   / /        ___      __    \n"\
+		"  //  ____  //   ) ) // ) )  ) ) //___) ) //   / /|  / / //___) ) //  ) ) \n"\
+		" //    / / //   / / // / /  / / //       //   / /|| / / //       //       \n"\
+		" ((____/ / ((___(( // / /  / / ((____   ((___/ / ||/ / ((____   //        \n"
+	);
+	move_to(HEIGHT + 1, 0);
+}
+
+
+bool Tetris::detect_collision(){
+	int i, j, row, col, *points;
+	row = m_graph->m_row;
+	col = m_graph->m_column;
+	points = m_graph->m_points;
+	for(i=0;i<m_graph->m_height;i++)
+		for(j=0;j<m_graph->m_width;j++)
+			if(m_graph->get_point(points, i, j) + m_map[row+i][col+j] == 2) //both equal 1
+				return true;
+	return false;
+}
+
+void Tetris::modify_map() {
+	int i, j, row, col, * points;
+	row = m_graph->m_row;
+	col = m_graph->m_column;
+	points = m_graph->m_points;
+	for (i = 0; i < m_graph->m_height; i++)
+		for (j = 0; j < m_graph->m_width; j++)
+			if (m_graph->get_point(points, i, j)) {
+				m_map[row + i][col + j] = 1;
+				m_color_map[row + i][col + j] = m_graph->m_color;
+			}
+}
+
+void Tetris::eliminate_line() {
+	int row, col, sum, bouns;
+	bouns = 10;
+	for (row = HEIGHT - 2; row >= DEAD_LINE + 1;) {
+		sum = 0;
+		for (col = 0; col < WIDTH; col++) {
+			sum += m_map[row][col];
+		}
+		if (sum == WIDTH) {
+			for (int i = 1; i < WIDTH - 1; i++) {
+				m_map[row][i] = 0;
+				m_color_map[row][i] = Tetris::paper;
+			}
+			draw_map();
+			m_score += bouns;
+			bouns *= 2;
+			draw_score();
+			for (int i = row; i >= DEAD_LINE + 1; i--) {
+				for (int j = 1; j < WIDTH - 1; j++) {
+					m_map[i][j] = m_map[i - 1][j];
+					m_color_map[i][j] = m_color_map[i - 1][j];
+				}
+			}
+			Sleep(200);
+			draw_map();
+		}
+		else {
+			row--;
+		}
+	}
+}
+
 void Tetris::play(){
 	cursor_show(false);
+	clear_screen();
+
 	init_map();
 	draw_map();
-
-	Graph *graph = new T_graph();
-
-    // System("cls");
-    graph->draw();
-
-    int i;
-    for (i = 0; i < 50; i++) {
-		Sleep(200);
-
-		graph->save();
-
-        int rand_num = rand() % 5;
-		switch (rand_num)
-		{
-		case 0:
-		case 1: graph->down(); break;
-		case 2: graph->move_right(); break;
-		case 3: graph->move_left(); break;
-		case 4: graph->rotate(); break;
-		default:
+	draw_score();
+	draw_help_info();
+	m_graph = graph_factory();
+	m_graph->move_left();
+	m_graph->move_left();
+	while(m_game_state!=END){
+		m_next_graph = graph_factory();
+		draw_next_graph();
+		m_graph -> draw();
+		while(!(m_graph->m_dead)){
+			Sleep(100);
+			m_graph->save();
+			m_graph->down();
+			if(detect_collision()){
+				m_graph->resume();
+				m_graph->m_dead = true;
+			}else{
+				m_graph->erase();
+				m_graph->draw();
+			}
+		}
+		modify_map();
+		draw_map();
+		if(m_graph->m_row<=DEAD_LINE){
+			m_game_state = END;
+			delete m_graph;
+			delete m_next_graph;
 			break;
 		}
+		eliminate_line();
 
-		graph->erase();
-		graph->draw();
-    }
+		delete m_graph;
+		m_graph = m_next_graph;
+	}
+
+	draw_game_over();
 	cursor_show(true);
 }
