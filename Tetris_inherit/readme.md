@@ -47,3 +47,8 @@
 make
 ```
 
+# 2 标准
+
+游戏采用如下标准：
+
+![standard](https://gitee.com/yuanfuyan/game-dev-homework/raw/master/Tetris_inherit/readme.assets/standard.png)
