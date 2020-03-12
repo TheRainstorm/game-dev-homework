@@ -20,9 +20,20 @@
 
 ## 2. MinGW
 
-```bash
-mingw32-make.exe
-```
+- 支持ANSI Escape codes
+
+  ```bash
+  mingw32-make.exe
+  ```
+
+- 不支持时
+
+  ```bash
+  #修改src/draw.cpp顶部宏定义为
+  #define NO_SUPPORT_ESCAPE_CODE
+  
+  mingw32-make.exe cscrutil
+  ```
 
 ## 3. Linux
 

@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "draw.h"
 
+#define SUPPORT_ESCAPE_CODE
+#ifdef SUPPORT_ESCAPE_CODE
+
 #define CSI "\033["
 
 void cursor_show(bool see) {
@@ -30,3 +33,40 @@ void draw_block(Color color) {
 	default: break;
 	}
 }
+
+#else
+
+#include "../cscrutil/src/scrutil.h"
+
+void cursor_show(bool see) {
+	scrShowCursor(see);
+}
+
+void clear_screen() {
+	scrClear();
+}
+
+void move_to(int row, int column) {
+	scrMoveCursorTo(row, column*2);
+}
+
+void draw_block(Color color) {
+	switch (color)
+	{
+	case BLACK:     scrSetColors(scrWhite, scrBlack); break;
+	case RED:       scrSetColors(scrWhite, scrRed); break;
+	case GREEN:     scrSetColors(scrWhite, scrGreen); break;
+	case YELLOW:    scrSetColors(scrWhite, scrYellow); break;
+	case BLUE:      scrSetColors(scrWhite, scrBlue); break;
+	case MAGENTA:   scrSetColors(scrWhite, scrMagenta); break;
+	case CRAY:      scrSetColors(scrWhite, scrCyan); break;
+	case WHITE:     scrSetColors(scrWhite, scrWhite); break;
+	case COLOR_NUM: scrSetColors(scrWhite, scrBlack);	//conceal	Not widely support
+	default: break;
+	}
+    printf("  ");
+    scrSetColors(scrWhite, scrBlack);
+    // fflush(stdout);
+}
+
+#endif
