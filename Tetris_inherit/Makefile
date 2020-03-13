@@ -9,12 +9,12 @@ CXXFLAGS = $(INCLUDE) $(LIB)
 tetris: $(ObjFiles)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-src/graph.o: graph.c define.h
-	$(CXX) -c -o $@ $<
-src/Tetris.o: Tetris.c define.h
-	$(CXX) -c -o $@ $<
-src/main.o: main.c define.h
-	$(CXX) -c -o $@ $<
+src/graph.o: src/graph.cpp include/defines.h
+	$(CXX) $(INCLUDE) -c -o $@ $<
+src/Tetris.o: src/Tetris.cpp include/defines.h
+	$(CXX) $(INCLUDE) -c -o $@ $<
+src/main.o: src/main.cpp include/defines.h
+	$(CXX) $(INCLUDE) -c -o $@ $<
 
 #if don't support ANSI Escape codes on windows
 cscrutil: $(ObjFiles) ./cscrutil/src/scrutil.o

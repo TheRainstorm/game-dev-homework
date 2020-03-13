@@ -52,3 +52,14 @@ make
 游戏采用如下标准：
 
 ![standard](https://gitee.com/yuanfuyan/game-dev-homework/raw/master/Tetris_inherit/readme.assets/standard.png)
+
+# 3 修改游戏
+
+- 游戏下落加速所需的方块数：`include/defines.h-> COUNTER`
+- 游戏地图的高度和宽度：`include/defines.h-> WIDTH, HEIGHT`
+
+
+
+
+
+finally, enjoy it! :-)
